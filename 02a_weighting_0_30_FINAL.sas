@@ -106,6 +106,7 @@ RUN;
 
 DATA other_days_weights;
 	SET other_days_for_IPCW other_days_not_recent;
+	BY ID start_interval;
 
 	IF recentstart = 1 AND long_cens_nostart = 0 THEN Cumulative_IPCW = 1/FU_uncens; /*Those who recently started treatment should be assigned cumulative IPCW based on their predicted probability*/
 
