@@ -30,7 +30,7 @@ RUN;
 
 
 /*Next, let's make the data set long. Unlike the trt_0_30 and trt_0_90 analyses, we will need more than two observations. This is because we will need to account
-for censoring from cens_startearly = 1 during the 0-30 day window. We can do this with 30 one-day intervals starting on day 0/6/12/18/24. We will then have an interval from
+for censoring from cens_startearly = 1 during the 0-30 day window. We can do this with 30 one-day intervals starting on day 0. We will then have an interval from
 day 30 to 90 where no one is censored for either starting early or not starting, and then a final interval from day 90 to 180 where we deal with the censoring from cens_nostart = 1.*/
 
 DATA long_trt_30_90;
