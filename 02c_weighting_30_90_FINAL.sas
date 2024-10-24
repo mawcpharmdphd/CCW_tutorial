@@ -24,7 +24,7 @@ the t0 censoring. We can call those weights "t0IPCW" to represent their action a
 
 DATA trt_30_90_with_cens_no_0_fu;
 	SET trt_30_90_t0_uncens;
-	WHERE t0censnotrt ^= 1;
+	WHERE t0cens30_90 ^= 1;
 	t0IPCW=1/t0_uncens;
 RUN;
 
