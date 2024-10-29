@@ -73,7 +73,7 @@ DATA long_no_trt_weights;
 	RETAIN Cumulative_IPCW; /*Allow this variable to cross observations*/
 	BY ID;
 	Interval_IPCW = 1/FU_uncens;
-	IF first.ID THEN Cumulative_IPCW = t0IPCW*Interval_IPCW; /*For the first observation of each patient, initiate their cumulative IPCW as their t0IPCW then multiply by their IPCW for the current interval*/
+	IF first.ID THEN Cumulative_IPCW = t0IPCW; /*For the first observation of each patient, initiate their cumulative IPCW as their t0IPCW*/
 	ELSE Cumulative_IPCW = Interval_IPCW * Cumulative_IPCW; /*For every subsequent observation, their cumulative IPCW is equal to the product of their last cumulative IPCW and the interval IPCW*/
 RUN;
 
