@@ -1,7 +1,7 @@
 # CCW_tutorial
 This repository includes code to conduct a clone-censor-weighted study of "initiate treatment within X days" using a modified cohort created from the Synthetic Medicare Public Use Files (SynPUF), as well as the base cohort itself. It includes code to study four different regimens: start treatment within 30 days of MI, start treatment within 90 days of MI, start treatment between 30 and 90 days of MI, and never start treatment. The first three regimens are the focus of the associated manuscript.  
   
-In addition to the base cohort file built from a modified version of the SynPUF data (baseccwcohort.sas7bdat), this repository includes commented SAS and R code walking through a key aspects of a CCW study step-by-step including:  
+In addition to the base cohort file built from a modified version of the SynPUF data (baseccwcohort.sas7bdat) and included in the Data folder, this repository includes commented SAS (in the SAS_code folder) and R (in the R_code folder) code walking through a key aspects of a CCW study step-by-step including:  
   
 -Cloning and censoring the cohort (01_cloning_and_censoring_FINAL)  
   
