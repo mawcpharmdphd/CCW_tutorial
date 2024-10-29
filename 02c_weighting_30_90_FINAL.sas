@@ -199,7 +199,7 @@ DATA weights_trt_30_90;
 	SET first_30_weights day_30_to_90_weights day_90_plus_weights ;
 	BY ID start_interval;
 	RETAIN Cumulative_IPCW; /*Allow this variable to cross observations*/
-	IF first.ID THEN Cumulative_IPCW = t0IPCW*Interval_IPCW; /*For the first observation of each patient, initiate their cumulative IPCW as their t0IPCW then multiply by their IPCW for the current interval*/
+	IF first.ID THEN Cumulative_IPCW = t0IPCW; /*For the first observation of each patient, initiate their cumulative IPCW as their t0IPCW*/
 	ELSE DO;
 		Last_cumulative_IPCW = Cumulative_IPCW; /*Saving the last cumulative IPCW for everyone is helpful for calculating SMDs*/
 		Cumulative_IPCW = Interval_IPCW * Cumulative_IPCW; /*For every subsequent observation, their cumulative IPCW is equal to the product of their last cumulative IPCW and the interval IPCW*/
