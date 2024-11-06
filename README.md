@@ -7,7 +7,7 @@ In addition to the base cohort file built from a modified version of the SynPUF 
   
 -Weighting each set of clones to account for selection bias (02a_weighting_0_30_FINAL, 02b_weighting_0_90_FINAL, 02c_weighting_30_90_FINAL, 02d_weighting_no_trt_FINAL)  
   
--Estimating contrasts between each set of clones (03_estimating_effects_final)  
+-Estimating contrasts between each set of clones (03_estimating_effects_FINAL)  
   
 -Visualizing the difference in initiation timings across the different regimens (04_visualizing_exposure_FINAL)  
   
