@@ -48,7 +48,7 @@ RUN;
 
 /*Now that the cohort is created, we can start estimating SMDs.*/
 
-/*Let's start in teh cohort. First, let's get the means and standard deviations for Table 1 using the "unweighted" weights*/
+/* First, let's get the means and standard deviations for Table 1 using the "unweighted" weights*/
 
 PROC MEANS DATA=interval_30_90 MEAN STDDEV; /*We want means and standard deviation*/
 	CLASS treat; /*This calculates values in each group and overall*/
@@ -94,59 +94,68 @@ DATA tposed_30_90_stddev_flag_unwt;
 	DROP _name_;
 RUN;
 
-/*Now we merge the data and calculate the SMD*/
+/*Now we merge the data and calculate the SMD, comparing the mean in the recent initiators (mean_1) to the mean in everyone (mean__999)*/
 
 DATA cont_unwt_analysis;
 	MERGE tposed_30_90_mean_flag_unwt tposed_30_90_stddev_flag_unwt;
 	BY analysis;
 	variable = "age";
-	SMD = (mean_1 - mean_0) / STDDEV__999;
+	SMD = (mean_1 - mean__999) / STDDEV__999;
 RUN;
 
-/*What about binary variables? This is actually easier. We just need the proportions in each group, easy to get in two tables.*/
+/*What about binary variables? We need the proportions in the recent initiators as well as the proportions overall, easy to get in two tables.*/
 
 PROC FREQ DATA=interval_30_90;
 	TABLES renal*treat / OUT=renalprop_unwt_30_90 OUTPCT;
 	WEIGHT unweighted;
+	TABLES renal / OUT=all_renalprop_unwt_30_90;
+	WEIGHT unweighted;
 	TABLES sex*treat / OUT=sexprop_unwt_30_90 OUTPCT;
+	WEIGHT unweighted;
+	TABLES sex / OUT=all_sexprop_unwt_30_90;
 	WEIGHT unweighted;
 RUN;
 
-/*Next, we limit ourselves to one level of the variables (1 for female, Y for renal) and create flag for the variable name and create actual proportions*/
+/*Next, we limit ourselves to one level of the variables (1 for female, Y for renal) and create flag for the variable name. We also subset the normal tables to treat=1*/
 
 DATA only_Y_renal_unwt_30_90;
 	SET renalprop_unwt_30_90;
 	IF renal = "Y";
 	variable = "ren";
-	PROP=PCT_COL/100;
+	WHERE treat=1;
+	PROP_1=PCT_COL/100;
+RUN;
+
+DATA only_Y_all_renal_unwt_30_90;
+	SET all_renalprop_unwt_30_90;
+	IF renal = "Y";
+	variable = "ren";
+	PROP_all=PERCENT/100;
 RUN;
 
 DATA only_1_sex_unwt_30_90;
 	SET sexprop_unwt_30_90;
 	IF sex="1";
+	WHERE treat=1;
 	variable = "fem";
-	PROP=PCT_COL/100;
+	PROP_1=PCT_COL/100;
 RUN;
 
-/*Next, we transpose the proportions in each of these data sets, keeping the variable name*/
-
-PROC TRANSPOSE DATA=only_Y_renal_unwt_30_90 OUT=tposed_30_90_renal_unwt PREFIX=TREAT_;
-	VAR PROP;
-	ID treat;
-	BY variable;
-RUN;
-
-PROC TRANSPOSE DATA=only_1_sex_unwt_30_90 OUT=tposed_30_90_sex_unwt PREFIX=TREAT_;
-	VAR PROP;
-	ID treat;
-	BY variable;
+DATA only_1_all_sex_unwt_30_90;
+	SET all_sexprop_unwt_30_90;
+	IF sex="1";
+	variable = "fem";
+	PROP_all=PERCENT/100;
 RUN;
 
 /*Next, we can combine these sets together and calculate SMDs*/
 
+/*Next, we can combine these sets together and calculate SMDs*/
+
 DATA cat_var_30_90_unwt;
-	SET tposed_30_90_renal_unwt tposed_30_90_sex_unwt;
-	SMD = (TREAT_1 - TREAT_0)/ SQRT( ( ( TREAT_1*(1-TREAT_1) + TREAT_0*(1-TREAT_0) ) / 2 ) );
+	MERGE  only_Y_renal_unwt_30_90 only_Y_all_renal_unwt_30_90 only_1_sex_unwt_30_90 only_1_all_sex_unwt_30_90;
+	BY variable;
+	SMD = (PROP_1 - PROP_all)/ SQRT( ( ( PROP_1*(1-PROP_1) + PROP_all*(1-PROP_all) ) / 2 ) );
 RUN;
 
 /*What if we want to estimate the standardized mean differences after weighting? We repeat the above with a "weight" statement in the PROC MEANS/PROC FREQ.*/
@@ -201,51 +210,60 @@ DATA cont_wt_analysis;
 	MERGE tposed_30_90_mean_flag_wt tposed_30_90_stddev_flag_wt;
 	BY analysis;
 	variable = "age";
-	SMD = (mean_1 - mean_0) / STDDEV__999;
+	SMD = (mean_1 - mean__999) / STDDEV__999;
 RUN;
 
-/*What about binary variables? This is actually easier. We just need the proportions in each group, easy to get in two tables.*/
+/*What about binary variables? We need the proportions in the recent initiators as well as the proportions overall, easy to get in two tables.*/
 
 PROC FREQ DATA=interval_30_90;
 	TABLES renal*treat / OUT=renalprop_wt_30_90 OUTPCT;
-	WEIGHT cumulative_IPCW;
+	WEIGHT Cumulative_IPCW;
+	TABLES renal / OUT=all_renalprop_wt_30_90;
+	WEIGHT Cumulative_IPCW;
 	TABLES sex*treat / OUT=sexprop_wt_30_90 OUTPCT;
-	WEIGHT cumulative_IPCW;
+	WEIGHT Cumulative_IPCW;
+	TABLES sex / OUT=all_sexprop_wt_30_90;
+	WEIGHT Cumulative_IPCW;
 RUN;
 
-/*Next, we limit ourselves to one level of the variables (1 for female, Y for renal) and create flag for the variable name and create actual proportions*/
+/*Next, we limit ourselves to one level of the variables (1 for female, Y for renal) and create flag for the variable name. We also subset the normal tables to treat=1*/
 
 DATA only_Y_renal_wt_30_90;
 	SET renalprop_wt_30_90;
 	IF renal = "Y";
 	variable = "ren";
-	PROP=PCT_COL/100;
+	WHERE treat=1;
+	PROP_1=PCT_COL/100;
+RUN;
+
+DATA only_Y_all_renal_wt_30_90;
+	SET all_renalprop_wt_30_90;
+	IF renal = "Y";
+	variable = "ren";
+	PROP_all=PERCENT/100;
 RUN;
 
 DATA only_1_sex_wt_30_90;
 	SET sexprop_wt_30_90;
 	IF sex="1";
+	WHERE treat=1;
 	variable = "fem";
-	PROP=PCT_COL/100;
+	PROP_1=PCT_COL/100;
 RUN;
 
-/*Next, we transpose the proportions in each of these data sets, keeping the variable name*/
-
-PROC TRANSPOSE DATA=only_Y_renal_wt_30_90 OUT=tposed_30_90_renal_wt PREFIX=TREAT_;
-	VAR PROP;
-	ID treat;
-	BY variable;
+DATA only_1_all_sex_wt_30_90;
+	SET all_sexprop_wt_30_90;
+	IF sex="1";
+	variable = "fem";
+	PROP_all=PERCENT/100;
 RUN;
 
-PROC TRANSPOSE DATA=only_1_sex_wt_30_90 OUT=tposed_30_90_sex_wt PREFIX=TREAT_;
-	VAR PROP;
-	ID treat;
-	BY variable;
-RUN;
+/*Next, we can combine these sets together and calculate SMDs*/
 
-/*Finally, we can combine these sets together and calculate weighted SMDs*/
+/*Next, we can combine these sets together and calculate SMDs*/
 
 DATA cat_var_30_90_wt;
-	SET tposed_30_90_renal_wt tposed_30_90_sex_wt;
-	SMD = (TREAT_1 - TREAT_0)/ SQRT( ( ( TREAT_1*(1-TREAT_1) + TREAT_0*(1-TREAT_0) ) / 2 ) );
+	MERGE  only_Y_renal_wt_30_90 only_Y_all_renal_wt_30_90 only_1_sex_wt_30_90 only_1_all_sex_wt_30_90;
+	BY variable;
+	SMD = (PROP_1 - PROP_all)/ SQRT( ( ( PROP_1*(1-PROP_1) + PROP_all*(1-PROP_all) ) / 2 ) );
 RUN;
