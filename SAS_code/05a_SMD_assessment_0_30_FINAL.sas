@@ -155,6 +155,7 @@ PROC MEANS DATA=interval_30 MEAN STDDEV; /*We want means and standard deviation*
 	CLASS treat; /*This calculates values in each group and overall*/
 	VAR intv_age;
 	WEIGHT cumulative_IPCW;
+ 	VARDEF = weight;
 	OUTPUT OUT=interval_30_mean_stddev_wt mean=age_mean stddev=age_stddev;
 RUN;
 
