@@ -89,7 +89,7 @@ DATA desynpuf.trt_30_90_with_cens;
 	SET trt30_90;
 	/*First, let's deal with censoring the people who start within the first 30 days.*/
 	IF RX_start < 30 AND RX_start ^= . THEN DO;
-		IF followup >= RX_start THEN DO; /*If their start of treatment is on or after their end of follow-up (entirely possible for some outcomes), they should be censored*/
+		IF followup >= RX_start THEN DO; /*If their start of treatment is before their end of follow-up (entirely possible for some outcomes), they should be censored*/
 			Cens_followup = RX_start;
 			Cens_outcome = 0;
 			Cens_startearly = 1;
